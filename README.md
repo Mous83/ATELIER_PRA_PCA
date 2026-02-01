@@ -10,7 +10,7 @@ Séquence 1 : Codespace de Github
 Objectif : Création d'un Codespace Github  
 Difficulté : Très facile (~5 minutes)
 -------------------------------------------------------------------------------------------------------
-RDV sur Codespace de Github : <a href="https://github.com/features/codespaces" target="_blank">Codespace</a> **(click droit ouvrir dans un nouvel onglet)** puis connecter votre Codespace à votre Repository API-Driven.
+RDV sur Codespace de Github : <a href="https://github.com/features/codespaces" target="_blank">Codespace</a> **(click droit ouvrir dans un nouvel onglet)** puis créer un nouveau Codespace qui sera connecté à votre Repository API-Driven.
   
 ---------------------------------------------------
 Séquence 2 : Création de votre serveur de Streaming
