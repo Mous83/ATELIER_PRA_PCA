@@ -285,14 +285,46 @@ Difficulté : Moyenne (~2 heures)
 * last_backup_file : nom du dernier backup présent dans /backup
 * backup_age_seconds : âge du dernier backup
 
-*..**Déposez ici une copie d'écran** de votre réussite..*
-
+*![alt text](image.png)
 ---------------------------------------------------
 ### **Atelier 2 : Choisir notre point de restauration**  
 Aujourd’hui nous restaurobs “le dernier backup”. Nous souhaitons **ajouter la capacité de choisir un point de restauration**.
 
-*..Décrir ici votre procédure de restauration (votre runbook)..*  
-  
+Ma procédure de restauration ciblée (Runbook) :
+
+Si la dernière sauvegarde est elle aussi corrompue et que je dois remonter plus loin dans le temps, voici les étapes que j'applique :
+
+1. Lister les sauvegardes disponibles :
+Je lance un pod de debug temporaire pour aller fouiller dans le volume pra-backup et voir la liste des fichiers :
+
+```
+kubectl -n pra run debug-backup --rm -it --image=alpine --overrides='{"spec": {"containers": [{"name": "debug","image": "alpine","command": ["sh"],"stdin": true,"tty": true,"volumeMounts": [{"name": "backup","mountPath": "/backup"}]}],"volumes": [{"name": "backup","persistentVolumeClaim": {"claimName": "pra-backup"}}]}}'
+
+```
+Une fois dans le pod, je tape ls -lh /backup pour voir les dates et je choisis le fichier qui m'intéresse (ex: app-1772112961.db). Je tape exit pour sortir.
+
+2. Modifier le Job de restauration :
+J'ouvre le fichier pra/50-job-restore.yaml dans mon éditeur.
+Je modifie la ligne de la commande cp (copie) pour remplacer la sélection automatique par le nom de mon fichier exact :
+
+```
+command: ["/bin/sh", "-c"]
+args: ["cp /backup/app-1772112961.db /data/app.db"]
+
+```
+
+3. Lancer la restauration :
+J'applique mon fichier YAML modifié pour déclencher le remplacement de la base de données de production par mon fichier spécifique :
+
+```
+
+kubectl apply -f pra/50-job-restore.yaml
+
+```
+
+4. Vérification :
+Je retourne sur mon application en ligne (sur la route /consultation) pour vérifier que l'état de mes données correspond bien au moment ciblé.
+
 ---------------------------------------------------
 Evaluation
 ---------------------------------------------------
