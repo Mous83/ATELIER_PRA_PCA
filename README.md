@@ -230,28 +230,9 @@ Faites preuve de pédagogie et soyez clair dans vos explications et procedures d
 
 **Exercice 1 :**  
 Quels sont les composants dont la perte entraîne une perte de données ?  
-  
-Exercice 1 : Quels sont les composants dont la perte entraîne une perte de données ?
 
-Ce serait la perte du volume pra-backup en même temps que le volume de base. Vu qu'on tourne en local avec K3d pour ce TP, nos deux volumes (prod et backup) sont en fait stockés sur le même disque dur physique de la machine. Du coup, si ce disque lâche, on perd la base ET les sauvegardes d'un coup. C'est le crash total.
+Ce serait la perte du volume pra-backup en même temps que le volume de base. Vu qu'on tourne en local avec K3d pour ce TP, nos deux volumes (prod et backup) sont en fait stockés sur le même disque dur physique de la machine. Du coup, si ce disque lâche, on perd la base et les sauvegardes d'un coup. C'est le crash total.
 
-Exercice 2 : Expliquez-nous pourquoi nous n'avons pas perdu les données lors de la suppression du PVC pra-data.
-
-En fait, on a bel et bien détruit la base de données en production ! Mais on n'a rien perdu définitivement parce qu'il y avait un CronJob qui tournait en tâche de fond. Il faisait une copie du fichier SQLite toutes les minutes sur un autre volume isolé (pra-backup). Du coup, il a suffi de lancer notre petit script de restauration pour reprendre la dernière sauvegarde et la remettre en prod.
-
-Exercice 3 : Quels sont les RTO et RPO de cette solution ?
-
-Pour le RPO (la perte de données max) : C'est 1 minute. Comme le script de backup s'exécute toutes les minutes, si ça plante juste avant la sauvegarde suivante, on perd au maximum les 59 dernières secondes de données.
-
-Pour le RTO (le temps de coupure) : Il n'est pas fixe, car ça dépend du temps de réaction humain. C'est le temps que je mette à me rendre compte que l'appli est down, que je recrée l'infrastructure et que je lance la commande de restauration à la main (je dirais environ 5 minutes).
-
-Exercice 4 : Pourquoi cette solution (cet atelier) ne peut pas être utilisée dans un vrai environnement de production ? Que manque-t-il ?
-
-Déjà, tout est sur le même disque physique, c'est trop risqué (SPOF). Ensuite, SQLite c'est pas vraiment fait pour une grosse prod. Surtout, il manque des alertes : si le backup plante pendant la nuit, on n'est pas prévenu. Et en cas de pépin, on doit tout restaurer à la ligne de commande manuellement, ce qui n'est pas hyper rassurant en condition de stress.
-
-Exercice 5 : Proposez une architecture plus robuste.
-
-Pour faire un truc vraiment propre pour la prod, je remplacerais SQLite par une vraie base de données managée (genre Cloud SQL ou AWS RDS) avec réplication sur plusieurs datacenters. Pour les sauvegardes, au lieu de les garder sur un PVC local, je les enverrais direct sur un stockage externe comme un bucket S3. Et bien sûr, j'utiliserais un cluster Kubernetes réparti sur plusieurs nœuds physiques.
 
 **Exercice 2 :**  
 Expliquez nous pourquoi nous n'avons pas perdu les données lors de la supression du PVC pra-data  
@@ -273,7 +254,7 @@ Déjà, tout est sur le même disque physique, c'est trop risqué (SPOF). Ensuit
 **Exercice 5 :**  
 Proposez une archtecture plus robuste.   
   
-Pour faire un truc vraiment propre pour la prod, je remplacerais SQLite par une vraie base de données managée (genre Cloud SQL ou AWS RDS) avec réplication sur plusieurs datacenters. Pour les sauvegardes, au lieu de les garder sur un PVC local, je les enverrais direct sur un stockage externe comme un bucket S3. Et bien sûr, j'utiliserais un cluster Kubernetes réparti sur plusieurs nœuds physiques.
+Pour faire vraiment propre pour la prod, je remplacerais SQLite par une vraie base de données managée (genre Cloud SQL ou AWS RDS) avec réplication sur plusieurs datacenters. Pour les sauvegardes, au lieu de les garder sur un PVC local, je les enverrais direct sur un stockage externe comme un bucket S3. Et bien sûr, j'utiliserais un cluster Kubernetes réparti sur plusieurs nœuds physiques.
 
 ---------------------------------------------------
 Séquence 6 : Ateliers  
